@@ -1,0 +1,102 @@
+---
+# tasks file for avocado-install
+- name: Avocado-FrameWork installation tasks 
+  hosts: rhel_machine
+  user: vagrant
+  become: yes
+  tasks:
+  - block:
+      - debug: msg='Step 1 Verification Avocado-Framework Exists'
+      - command: 'avocado --version' 
+        ignore_errors: yes    
+      - debug: msg='All set Avocado is already here'
+    rescue:
+      - debug: msg='Installing Avocado ... '
+      - command: 'yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -y'
+      - command: 'curl https://repos-avocadoproject.rhcloud.com/static/avocado-el.repo -o /etc/yum.repos.d/avocado.repo'
+      - yum: name=avocado state=latest 
+      - debug: msg='Done with installation...'
+        ignore_errors: yes    
+        tags:
+           - rhel
+    always:
+      - debug: msg="this always executes"
+
+  - block:
+      - debug: msg='Step 2 Verification Python - Pip  Exists'
+      - command: 'pip --version'
+      - debug: msg='All set python-pip is already here!!'
+        ignore_errors: yes
+    rescue:
+      - debug: msg='Installing python-pip ... '
+      - yum: name=python-pip state=latest
+      - debug: msg='Done with installation...'
+        ignore_errors: yes
+        tags:
+           - pip
+    always:
+      - debug: msg="this always executes"
+
+
+  - block:
+      - debug: msg='Step 3 Verification Python-vagrant library Exists'
+      - command: 'python -c "import vagrant"'
+      - debug: msg='All set python-vagrant is already here!!'
+        ignore_errors: yes    
+    rescue:
+      - debug: msg='Installing python-vagrant ... '
+      - command: "pip install python-vagrant"
+      - debug: msg='Done with installation...'
+        ignore_errors: yes    
+        tags:
+           - rhel
+    always:
+      - debug: msg="this always executes"
+
+  - block:
+      - debug: msg='Step 4 Verification Python-Pexpect Exists'
+      - command: 'python -c "import pexpect"'
+      - debug: msg='All set python-vagrant is already here!!'
+        ignore_errors: yes
+    rescue:
+      - debug: msg='Installing python-pexpect ... '
+      - command: "pip install pexpect"
+      - debug: msg='Done with installation...'
+        ignore_errors: yes 
+        tags:
+           - rhel
+    always:
+      - debug: msg="this always executes"
+
+
+  - block:
+      - debug: msg='Step 4 Verification Git Exists'
+      - command: 'git --version'
+      - debug: msg='All set git is already here!!'
+        ignore_errors: yes
+    rescue:
+      - debug: msg='Installing git ... '
+      - yum: name=git state=latest
+      - debug: msg='Done with installation...'
+        ignore_errors: yes
+        tags:
+           - rhel
+    always:
+      - debug: msg="this always executes"
+
+
+  - block:
+      - debug: msg='Step 5 Clonning github test project'
+      - git: repo=https://github.com/projectatomic/adb-tests.git dest=/home/vagrant/cdk-test
+      - debug: msg='All set git clone is already here!!'
+        ignore_errors: yes
+    rescue:
+      - debug: msg='Installing python-pexpect ... '
+      - command: "pip install pexpect"
+      - debug: msg='Done with installation...'
+        ignore_errors: yes
+        tags:
+           - rhel
+    always:
+      - debug: msg="this always executes"
+
