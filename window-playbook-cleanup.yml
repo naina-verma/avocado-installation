@@ -1,0 +1,17 @@
+---
+- name: Windows CDK CleanUP playbook
+  hosts: win_machine
+  tasks:
+  - win_file: path=C:\Users\cdk\XYZ\cdk_automation\cdk_automation\ state=absent 
+  - win_file: path=C:\Users\cdk\XYZ\cdk_automation\ state=absent 
+  - raw:
+      vagrant box remove cdkv5 -f
+  - raw:
+      vagrant plugin uninstall vagrant-service-manager
+
+  - raw:
+      vagrant plugin uninstall vagrant-registration
+
+  - raw:
+      vagrant plugin uninstall vagrant-sshfs
+

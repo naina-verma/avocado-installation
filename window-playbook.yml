@@ -1,0 +1,32 @@
+---
+- name: Windows CDK installation playbook
+  hosts: win_machine
+  tasks:
+  - win_file: path='XYZ' state=directory
+  - win_get_url: url='http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/cdk.zip' dest="C:\Users\cdk\XYZ\cdk_automation.zip"
+  - win_get_url:
+      url: 'http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/rhel-7-cdk-vagrant-scratch-7.2.28072016-1.x86_64.vagrant-hyperv.box'
+      dest: 'C:\Users\cdk\XYZ\rhel-vagrant-hyperv.box'
+      force: yes
+    ignore_errors: yes
+  - win_unzip:
+        src: C:\Users\cdk\XYZ\cdk_automation.zip
+        dest: C:\Users\cdk\XYZ\cdk_automation
+        rm: true
+  - raw:
+      vagrant plugin install vagrant-service-manager
+      chdir=~/cdk_automation/plugins
+
+
+  - raw:
+      vagrant plugin install vagrant-registration
+      chdir=~/cdk_automation/plugins
+
+  - raw:
+      vagrant plugin install vagrant-sshfs
+      chdir=~/cdk_automation/plugins
+  - raw:
+      vagrant box add cdkv5 C:\Users\cdk\XYZ\rhel-vagrant-hyperv.box
+    ignore_errors: yes
+#      chdir=C:\Users\cdk\XYZ
+
