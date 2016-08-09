@@ -1,3 +1,5 @@
 [win_machine]
-ip
+10.34.24.200
+[linux_machine]
+localhost
 
