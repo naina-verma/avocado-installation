@@ -1,0 +1,59 @@
+---
+#- name: Pre-Play for Windows CDK installation playbook
+#  hosts: linux_machine
+#  tasks:
+#     - get_url: url="http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/" dest=/home/naina/avocado-installation/index.html
+#       ignore_errors: True
+#     - shell: grep hyperv index.html | awk -F "href" '{print $2}' | cut -d '"' -f2 | grep -v sha256sum
+#       register: foo_result1
+#       ignore_errors: True
+
+
+
+- name: Windows CDK installation playbook
+  hosts: win_machine
+  tasks:
+  - win_file: path='XYZ' state=directory
+  - win_get_url: url='http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/cdk.zip' dest="C:\Users\cdk\XYZ\cdk_automation.zip"
+  - raw: 
+      ((Invoke-WebRequest -Uri 'http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build').Links | Where-Object {$_.href -like "rhel*"} | Where innerHTML -like "rhel*").href | Select -index 2
+    register: foo_result1
+    ignore_errors: yes
+    when: ansible_distribution == 'Microsoft Windows NT 10.0.10586.0'
+
+
+  - win_get_url:
+      url: http://cdk-builds.usersys.redhat.com/builds/nightly/latest-build/{{ foo_result1.stdout_lines[0] }}
+      dest: 'C:\Users\cdk\XYZ\rhel-vagrant-hyperv-new.box'
+      force: yes
+    when: ansible_distribution == 'Microsoft Windows NT 10.0.10586.0'
+#      with_items: "{{ foo_result1.stdout_lines }}"
+#    ignore_errors: yes
+
+
+  - win_unzip:
+        src: C:\Users\cdk\XYZ\cdk_automation.zip
+        dest: C:\Users\cdk\XYZ\cdk_automation
+        rm: true
+    when: ansible_distribution == 'Microsoft Windows NT 10.0.10586.0'
+  - raw:
+      vagrant plugin install vagrant-service-manager
+      chdir=~/cdk_automation/plugins
+    when: ansible_distribution == 'Microsoft Windows NT 10.0.10586.0'
+
+
+  - raw:
+      vagrant plugin install vagrant-registration
+      chdir=~/cdk_automation/plugins
+    when: ansible_distribution == 'Microsoft Windows NT 10.0.10586.0'
+
+  - raw:
+      vagrant plugin install vagrant-sshfs
+      chdir=~/cdk_automation/plugins
+    when: ansible_distribution == 'Microsoft Windows NT 10.0.10586.0'
+  - raw:
+      vagrant box add cdkv2 C:\Users\cdk\XYZ\rhel-vagrant-hyperv-new.box
+    ignore_errors: yes
+#      chdir=C:\Users\cdk\XYZ
+    when: ansible_distribution == 'Microsoft Windows NT 10.0.10586.0'
+
