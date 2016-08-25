@@ -1,0 +1,107 @@
+---
+# tasks file for avocado-install
+- name: Avocado-FrameWork installation tasks 
+  hosts: mac_machine
+  user: cdkqe
+ # become: yes
+  tasks:
+  - block:
+      - debug: msg='Step 1 Verification Avocado-Framework Exists'
+      - command: '/usr/local/bin/avocado --version' 
+        ignore_errors: yes    
+      - debug: msg='All set Avocado is already here'
+      - debug: msg="{{ ansible_env.HOME }}"
+        when:  ansible_distribution  == "MacOSX"
+
+      
+    rescue:
+      - debug: msg='Installing Avocado ... '
+      - file: path="{{ ansible_env.HOME }}/automation-1" state=directory mode=0755
+      - get_url: url="https://github.com/avocado-framework/avocado/archive/36.0lts.zip" dest="{{ ansible_env.HOME }}/automation-1"
+      - unarchive: src="{{ ansible_env.HOME }}/automation-1/avocado-36.0lts.zip" dest="{{ ansible_env.HOME }}/automation-1/" copy=no
+      - template: src=/home/naina/avocado-installation/roles/avocado-install/templates/requirements.j2 dest="{{ ansible_env.HOME }}/automation-1/avocado-36.0lts/requirements.txt"
+      - command: "cd {{ ansible_env.HOME }}/automation-1/avocado-36.0lts &&  python setup.py install"
+      - debug: msg='Done with installation...'
+        ignore_errors: yes
+        when:  ansible_distribution  == "MacOSX"
+
+    always:
+      - debug: msg="this always executes"
+        when:  ansible_distribution  == "MacOSX"
+
+  - block:
+      - debug: msg='Step 2 Verification Python - Pip  Exists'
+      - command: '/usr/local/bin/pip -V'
+      - debug: msg='All set python-pip is already here!!'
+        ignore_errors: yes
+        when:  ansible_distribution  == "MacOSX"
+    rescue:
+      - debug: msg='Installing python-pip ... '
+      - command: 'brew install python'
+      - debug: msg='Done with installation...'
+        ignore_errors: yes
+        when:  ansible_distribution  == "MacOSX"
+    always:
+      - debug: msg="this always executes"
+
+
+  - block:
+      - debug: msg='Step 3 Verification Python-vagrant library Exists'
+      - command: 'python -c "import vagrant"'
+      - debug: msg='All set python-vagrant is already here!!'
+        ignore_errors: yes    
+        when:  ansible_distribution  == "MacOSX"
+    rescue:
+      - debug: msg='Installing python-vagrant ... '
+      - command: "/usr/local/bin/pip install python-vagrant"
+      - debug: msg='Done with installation...'
+        ignore_errors: yes    
+        when:  ansible_distribution  == "MacOSX"
+    always:
+      - debug: msg="this always executes"
+
+  - block:
+      - debug: msg='Step 4 Verification Python-Pexpect Exists'
+      - command: 'python -c "import pexpect"'
+      - debug: msg='All set python-vagrant is already here!!'
+        ignore_errors: yes
+        when:  ansible_distribution  == "MacOSX"
+    rescue:
+      - debug: msg='Installing python-pexpect ... '
+      - command: "/usr/local/bin/pip install pexpect"
+      - debug: msg='Done with installation...'
+        ignore_errors: yes 
+        when:  ansible_distribution  == "MacOSX"
+    always:
+      - debug: msg="this always executes"
+
+
+  - block:
+      - debug: msg='Step 4 Verification Git Exists'
+      - command: 'git --version'
+      - debug: msg='All set git is already here!!'
+        ignore_errors: yes
+        when:  ansible_distribution  == "MacOSX"
+    rescue:
+      - debug: msg='Installing git ... '
+      - command: 'brew install git'
+      - debug: msg='Done with installation...'
+        ignore_errors: yes
+        when:  ansible_distribution  == "MacOSX"
+    always:
+      - debug: msg="this always executes"
+
+
+  - block:
+      - debug: msg='Step 5 Clonning github test project'
+      - git: repo=https://github.com/projectatomic/adb-tests.git dest="{{ ansible_env.HOME }}/cdk-automation"
+      - debug: msg='All set git clone is already here!!'
+        ignore_errors: yes
+        when:  ansible_distribution  == "MacOSX"
+    rescue:
+      - debug: msg='Done with installation...'
+        ignore_errors: yes
+        when:  ansible_distribution  == "MacOSX"
+    always:
+      - debug: msg="this always executes"
+
